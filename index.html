@@ -17,6 +17,50 @@
       min-height:800px;
       overflow:hidden;
     }
+    .outlookminhi {
+      background-position:0px -61px;
+    }
+    .authorandstuff {
+      position:relative;
+      top:15px;
+      left:25px;
+      margin-left:5px;
+      font-size:small;
+      padding:2px;
+      border-bottom:1px solid #DDD;
+    }
+
+    td.right:hover * .authorandstuff {
+      display:block;
+    }
+    .afolder {
+      padding-top: 3px;
+      padding-bottom: 5px;
+      margin-left:10px;
+      padding-left:20px;
+      cursor:pointer;
+      font-family: Segoe UI;
+    }
+    .afolder:hover {
+      background-color: rgba(42,45,46,1);
+    }
+    .afolder::before {
+      content: url("icon.png");
+      display: inline-block;
+      transform: rotate(0deg);
+      margin-right: 10px;
+    }
+    .afolder.open::before {
+      transform: rotate(-90deg); /* freccina che ruota */
+    }
+    .threads-container {
+      margin-left: 20px;
+      font-size: 0.9em;
+      color: #ccc;
+    }
+    .thread {
+      padding: 2px 0;
+    }
     
     .sidebar {
       width: 250px;
@@ -117,19 +161,19 @@
       padding-top: 39px;
       width:319px;
       min-width:234px;
+      height: 100vh;
       position:relative;
       left:-2px;
       vertical-align:top;
-      background-color: #252526;
+      background-color: #181818;
       overflow-y: auto;
-      border-right: 1px solid #0f0202;
+      border-right: 1px solid #181818;
     }
 
     .middleupper {
       background-image:url('middlebar.png');
       width:321px;
       height:71px;
-      position:fixed;
     }
     .bottombar {
       background-image:url('lowbar.png');
@@ -140,6 +184,24 @@
       left:0px;
       position:fixed;
     }
+    .newemailbutton {
+      position: absolute;
+      top: 42px;
+      left: 0px;
+      width: 56px;
+      height: 58px;
+      background: #FFF;
+      z-index: 1000;
+      cursor: pointer;
+      opacity: 0;
+    }
+    .newemailbutton:hover {
+      opacity: 0.1;
+    }
+    .foldwraphi {
+      background: rgb(42,45,46);
+    }
+    
   </style>
 </head>
 <body>
@@ -153,9 +215,9 @@
         <div class="middleupper">
         </div>
         <div class="folderholder">
-
+          <div class="middlewrapper" style="font-family: Segoe UI;">
+          </div>
         </div>
-
       </td>
       <td class="right">
         <div class="theemailbody">
@@ -184,16 +246,16 @@
       </td>
     </tr>
   </table>
-
+  <div class="newemailbutton">
+  </div>
   <div class="bottombar"></div>
-  <!-- </script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="ui/jquery.ui.core.min.js"></script> 
 	<script src="ui/jquery.ui.widget.min.js"></script> 
 	<script src="ui/jquery.ui.mouse.min.js"></script> 
 	<script src="ui/jquery.ui.draggable.min.js"></script> 
 	<script src="ui/jquery.ui.resizable.min.js"></script> 
   <script type="text/javascript" src="thejs.js">
-  </script> -->
+  </script>
 </body>
 </html>
