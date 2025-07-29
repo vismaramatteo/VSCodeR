@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Reddit IDE Skin</title>
+  <title>VSCodeit</title>
   <style>
     body {
       margin: 0;
@@ -95,81 +95,14 @@
     </div>
   </div>
 
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const tabBar = document.getElementById('tabBar');
-    const content = document.getElementById('content');
-
-    let openTabs = {};
-
-    function fetchSubreddit(subreddit) {
-      fetch(`https://www.reddit.com/r/${subreddit}.json`)
-        .then(res => res.json())
-        .then(data => {
-          const threads = data.data.children;
-          const folder = document.createElement('div');
-          folder.className = 'folder';
-
-          const folderTitle = document.createElement('div');
-          folderTitle.className = 'title';
-          folderTitle.textContent = `/r/${subreddit}`;
-          folder.appendChild(folderTitle);
-
-          threads.forEach(t => {
-            const file = document.createElement('div');
-            file.className = 'file';
-            file.textContent = '📄 ' + t.data.title.slice(0, 50);
-            file.onclick = () => openThreadTab(t.data);
-            folder.appendChild(file);
-          });
-
-          sidebar.appendChild(folder);
-        });
-    }
-
-    function openThreadTab(thread) {
-      if (openTabs[thread.id]) {
-        setActiveTab(thread.id);
-        return;
-      }
-
-      const tab = document.createElement('div');
-      tab.className = 'tab';
-      tab.textContent = thread.title.slice(0, 20);
-      tab.onclick = () => setActiveTab(thread.id);
-      tabBar.appendChild(tab);
-
-      openTabs[thread.id] = { tab, thread };
-      setActiveTab(thread.id);
-    }
-
-    function setActiveTab(threadId) {
-      for (let id in openTabs) {
-        openTabs[id].tab.classList.remove('active');
-      }
-      openTabs[threadId].tab.classList.add('active');
-      renderThread(openTabs[threadId].thread);
-    }
-
-    function renderThread(thread) {
-      fetch(`https://www.reddit.com${thread.permalink}.json`)
-        .then(res => res.json())
-        .then(data => {
-          const comments = data[1].data.children;
-          content.innerHTML = '';
-          comments.forEach(c => {
-            if (!c.data.body) return;
-            const fn = document.createElement('div');
-            fn.className = 'function';
-            fn.textContent = `function comment_by_${c.data.author.replace(/\W/g, '_')}() {\n  // ${c.data.body.replace(/\n/g, '\n  // ')}\n}`;
-            content.appendChild(fn);
-          });
-        });
-    }
-
-    // Inizializzazione
-    fetchSubreddit('javascript');
-    fetchSubreddit('webdev');
+  </script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js" type="text/javascript"></script>
+	<script src="ui/jquery.ui.core.min.js"></script> 
+	<script src="ui/jquery.ui.widget.min.js"></script> 
+	<script src="ui/jquery.ui.mouse.min.js"></script> 
+	<script src="ui/jquery.ui.draggable.min.js"></script> 
+	<script src="ui/jquery.ui.resizable.min.js"></script> 
+  <script type="text/javascript" src="thejs.js">
   </script>
 </body>
 </html>
