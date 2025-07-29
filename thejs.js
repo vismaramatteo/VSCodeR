@@ -582,30 +582,29 @@ function spawnReplyWindow(id) {
 }
 firsttime = true;
 
-function folderIconClick() {
-  var folderId = $(this).attr('id');
-  var subredditname = folderId.replace("folder_", "");
-  var $threadContainer = $("#" + folderId + "_threads");
+function folderClick(folder_name) {
+  var thefolder = globalFolderDict[folder_name];
+  var subredditname = thefolder.subredditname;
 
-  if ($threadContainer.children().length > 0) {
-    $threadContainer.empty();
-    $(this).removeClass("open");
-    return;
+  var length = Object.keys(thefolder.emailDict).length;
+
+  if (length > 0) {
+    // già popolato
+    displayFolder(folder_name);
+  } else {
+    // loading + chiamata AJAX
+    $(".theemailbody").html("<div class='loading'>Loading...</div>");
+
+    var subredditname = folder_name.substr(7);
+    var link = getRedditDomain() + '/r/' + subredditname + '/.json';
+    if (subredditname == 'FrontPage') {
+      link = getRedditDomain() + '/r/all/.json';
+    }
+    link = link + '?jsonp=folderCallback';
+    tempFolderName = folder_name;
+    $.get(link, folderCallback, 'jsonp');
+
   }
-
-  $(this).addClass("open");
-  $threadContainer.html("<div class='loading'>Loading...</div>");
-
-  var link = getRedditDomain() + "/r/" + subredditname + "/.json?limit=5&jsonp=?";
-
-  $.getJSON(link, function(data) {
-    $threadContainer.empty();
-    data.data.children.forEach(function(post) {
-      var title = post.data.title;
-      var url = "https://reddit.com" + post.data.permalink;
-      $threadContainer.append(`<div class="thread"><a href="${url}" target="_blank">${title}</a></div>`);
-    });
-  });
 }
 
 var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -650,31 +649,31 @@ function moarButton() {
 tempFolderName = null;
 
 function folderCallback(data) {
-  console.log('the data is');
-  $('.afolder').click(folderIconClick);
   var thefolder = globalFolderDict[tempFolderName];
-  if (console.log) {
-    console.log('what we got back');
-    console.log(data);
-  }
+
   var after = data.data.after;
-  globalFolderDict[tempFolderName].after = after;
-  globalFolderDict[tempFolderName].count += 25;
+  thefolder.after = after;
+  thefolder.count += 25;
+
   for (var i = 0; i < data.data.children.length; i++) {
     var story = new myStory(data.data.children[i], thefolder, false);
   }
+
   displayFolder(tempFolderName);
 }
 
-function displayFolder(folder_name) {
-  if (current_folder == globalFolderDict[folder_name]) {
-    $('#previewarea').html('');
-    for (key in globalFolderDict[folder_name].emailDict) {
-      globalFolderDict[folder_name].emailDict[key].addToArea();
-    }
-    $('#previewarea').append('<input type="button" value="Load more posts" onclick="moarButton()" >');
-    onReload();
+function displayFolder(folderId) {
+  var thefolder = globalFolderDict[folderId];
+  var $container = $("#" + folderId + "_threads"); // sotto la cartella
+
+  $container.html("");
+
+  for (var key in thefolder.emailDict) {
+    thefolder.emailDict[key].addToArea();
   }
+
+  $container.append('<input type="button" value="Load more posts" onclick="moarButton()">');
+  onReload();
 }
 
 function handleEmailSend(id, tofield, ccfield, subjectfield, body) {
@@ -821,44 +820,21 @@ function makeFolder2(name, custom) {
 }
 
 function folderIconClick() {
-  var folderId = $(this).attr('id');
-  var subredditname = folderId.replace("folder_", "");
+  var $folder = $(this);
+  var folderId = $folder.attr("id");
 
-  var $threadContainer = $("#" + folderId + "_threads");
+  // evidenzio cartella selezionata
+  $(".foldwraphi").removeClass("foldwraphi");
+  $folder.parent().addClass("foldwraphi");
 
-  // Toggle: se già aperto, lo chiudo
-  if ($threadContainer.children().length > 0) {
-    $threadContainer.empty();
-    $(this).removeClass("open");
-    return;
-  }
+  // toggle freccia
+  $folder.toggleClass("open");
 
-  // Se vuoto, carico i thread via Reddit JSON
-  $(this).addClass("open");
-  $threadContainer.html("<div class='loading'>Loading...</div>");
-
-  var link = getRedditDomain() + "/r/" + subredditname + "/.json?limit=5&jsonp=?";
-
-  $.getJSON(link, function(data) {
-    $threadContainer.empty();
-    data.data.children.forEach(function(post) {
-      var title = post.data.title;
-      var url = "https://reddit.com" + post.data.permalink;
-      $threadContainer.append(`<div class="thread"><a href="${url}" target="_blank">${title}</a></div>`);
-    });
-  });
+  // delego a folderClick la logica dei post
+  folderClick(folderId);
 }
 globalWindowDict = {};
 globalFolderDict = {};
-
-function spawnCommandWindow() {
-  var usage = "Usage:\n\n";
-  usage += "Add subreddits:\n";
-  usage += "\tIn the TO field, type subreddit [subredditname]+\n\texample: subreddit starcraft linux programming\n";
-  usage += "\n\nGo to a comments page:\n\tJust paste in the link in the to field and hit send! example:\n";
-  usage += "\thttp://www.reddit.com/r/gaming/comments/jkiu2/battlefield_3_caspian_border_gameplay_hd";
-  var asd = new myWindow('', '', '', '', '', usage, true);
-}
 
 function addSubReddit() {
     var subreddit = prompt("Please enter a subreddit name");
@@ -869,7 +845,7 @@ function addSubReddit() {
 
 document.addEventListener("click", function(e) {
   if (e.target.classList.contains("afolder")) {
-    e.target.classList.toggle("open"); // se non c’è, la aggiunge; se c’è, la toglie
+    e.target.classList.toggle("open");
   }
 });
 
@@ -898,8 +874,6 @@ $(document).ready(function() {
       var id = $('.commentroothi').parent().attr('id');
       if (id != null) {
         spawnReplyWindow(id);
-      } else {
-        spawnCommandWindow();
       }
     }
   });
