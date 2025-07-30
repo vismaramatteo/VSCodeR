@@ -232,6 +232,7 @@ function commentsCallback(storyJSON) {
   mainJSON = storyJSON[0].data.children[0].data;
   var theStoryID = mainJSON.name;
   var story = globalStoryDict[theStoryID];
+
   if (isImgur(mainJSON.url)) {
     var expando = makeImgurExpando(mainJSON.url, mainJSON.title);
     story.bodyHTML += expando;
@@ -241,69 +242,85 @@ function commentsCallback(storyJSON) {
       story.bodyHTML += mainJSON.selftext_html;
     }
   }
-  if (mainJSON.isSelf) {
-    if (mainJSON.selftext_html != null) {
-      story.bodyHTML += mainJSON.selftext_html;
-    }
+
+  if (mainJSON.isSelf && mainJSON.selftext_html != null) {
+    story.bodyHTML += mainJSON.selftext_html;
   }
+
   story.bodyHTML = unEncode(story.bodyHTML);
   story.bodyHTML += '<div class="storycommentline"></div>';
+
+  // 🔑 Ora passiamo direttamente level=0
   var commentsRoot = storyJSON[1].data.children;
-  var commentsHTML = '';
-  for (var i = 0; i < commentsRoot.length; i++) {
-    if (commentsRoot[i].kind == 'more') {
-      continue;
-    }
-    var commentJSON = commentsRoot[i].data;
-    var author = commentJSON.author;
-    var body_html = unEncode(commentJSON.body_html);
-    var score = commentJSON.ups - commentJSON.downs;
-    var id = commentJSON.name;
-    commentsHTML += makeCommentHeader(score, author, body_html, id);
-    commentsHTML += '<div class="childrencomments child0">';
-    try {
-      commentsHTML += getChildComments(commentJSON.replies.data.children, 1);
-    } catch (err) {}
-    commentsHTML += '</div></div>';
-  }
+  var commentsHTML = getChildComments(commentsRoot, 0);
+
   story.bodyHTML += commentsHTML;
+
   if (currentStory == theStoryID) {
     $('.theemailbody').html(story.bodyHTML);
     onStoryLoad();
-  } else {}
+  }
 }
 
-function makeCommentHeader(score, author, body_html, id) {
-  commentsHTML = '';
-  commentsHTML += '<div id="' + id + '" class="commentroot">';
-  commentsHTML += '<div class="authorandstuff showhover">';
-  commentsHTML += '<span class="functionauthor">function <span class="commentauthor">' + author + '</span><span class="commentsymbol">(</span>' + '<span class="score">' + score + '</span><span class="commentsymbol">) {</span>';
-  commentsHTML += '</div>';
-  commentsHTML += '<div class="commentbody">' + body_html + '<span class="commentsymbol">}</span></div>';
+function makeCommentHeader(score, author, body_html, id, isChild) {
+  let commentsHTML = '';
+
+  if (!isChild) {
+    // Struttura completa per root comment
+    commentsHTML += '<div id="' + id + '" class="commentroot">';
+    commentsHTML += '<div class="authorandstuff showhover">';
+    commentsHTML += '<span class="functionauthor">function <span class="commentauthor">' + author +
+                    '</span><span class="commentsymbol">(</span>' +
+                    '<span class="score">' + score + '</span>' +
+                    '<span class="commentsymbol">) {</span>';
+    commentsHTML += '</div>';
+    commentsHTML += '<div class="commentbody">' +
+                    body_html.replaceAll('<p>', '<p style="margin-bottom: 0px;">').replaceAll('</p><br/>','</p>').replaceAll('<br/>','') +
+                    '</div>';
+  } else {
+    // Struttura ridotta per risposte annidate
+    commentsHTML += '<div id="' + id + '" class="commentchild">';
+    commentsHTML += '<div class="authorandstuff">';
+    commentsHTML += '<span class="ifauthor">if</span><span class="commentsymbol">(</span>' + author +
+                    '<span style="color: white"> == </span> ' + score +
+                    '<span class="commentsymbol">)</span>';
+    commentsHTML += '</div>';
+    commentsHTML += '<div class="commentbody">' +
+                    body_html.replaceAll('<p>', '<p style="margin-bottom: 0px;">').replaceAll('</p><br/>','</p>').replaceAll('<br/>','') +
+                    '</div>';
+  }
   return commentsHTML;
 }
 
 function getChildComments(jsonroot, level) {
-  if (jsonroot == null) {
-    return '';
-  }
-  var tempHTML = '';
-  for (var i = 0; i < jsonroot.length; i++) {
-    if (jsonroot[i].kind == 'more') {
-      continue;
-    }
-    var commentjson = jsonroot[i].data;
-    var author = commentjson.author;
-    var body_html = unEncode(commentjson.body_html);
-    var score = commentjson.ups - commentjson.downs;
-    var id = commentjson.name;
-    tempHTML += makeCommentHeader(score, author, body_html, id);
+  if (!jsonroot) return '';
+
+  let tempHTML = '';
+
+  for (let i = 0; i < jsonroot.length; i++) {
+    if (jsonroot[i].kind === 'more') continue;
+
+    let commentjson = jsonroot[i].data;
+    let author = commentjson.author;
+    let body_html = unEncode(commentjson.body_html);
+    let score = commentjson.ups - commentjson.downs;
+    let id = commentjson.name;
+
+    // root → isChild = false, figli → true
+    tempHTML += makeCommentHeader(score, author, body_html, id, level > 0);
+
     tempHTML += '<div class="childrencomments child' + level + '">';
     try {
       tempHTML += getChildComments(commentjson.replies.data.children, level + 1);
     } catch (err) {}
-    tempHTML += "</div></div>";
+    tempHTML += '</div></div>';
+
+    // 🔑 chiusura solo per i root
+    if (level == 0) {
+      tempHTML += '<div class="closeauthorandstuff"><span class="commentsymbol"">}</span></div><br/>';
+    }
   }
+
   return tempHTML;
 }
 
