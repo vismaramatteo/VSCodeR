@@ -27,6 +27,13 @@
       margin-left:5px;
       padding:2px;
     }
+    .closeauthorandstuff {
+      position:relative;
+      top:-15px;
+      left:25px;
+      margin-left:5px;
+      padding:2px;
+    }
     .right {
       padding: 50px 0px 0px 0px !important;
       width:100% !important;
@@ -92,7 +99,9 @@
     .functionauthor {
       color:#569cd6;
     }
-    
+    .ifauthor {
+      color:#c586c0;
+    }
     .file {
       margin-left: 15px;
       margin-bottom: 4px;
@@ -284,6 +293,8 @@
       overflow-y: auto;
     }
     .commentbody {
+      margin-top:16px;
+      margin-bottom:16px;
       margin-left:50px;
       margin-right:15px;
     }
@@ -296,6 +307,30 @@
     }
     * {
       scrollbar-color: #5a5a5a #1e1e1e;    /* thumb + track */
+    }
+    .childrencomments {
+      position: relative;
+      margin-left: 20px;              /* indentazione */
+      padding-left: 15px;             /* spazio dal bordo */
+    }
+
+    /* linea verticale continua */
+    .childrencomments::before {
+      content: "";
+      position: absolute;
+      top: 0;                  /* distanza dal bordo sinistro */
+      bottom: 0;
+      width: 1px;
+      background-color: #3c3c3c;      /* colore grigio scuro VS Code */
+    }
+
+    /* blocchi commento */
+    .commentroot,
+    .commentchild {
+      margin-bottom: 10px;
+    }
+    .score {
+      color: #b5cea8; /* verde chiaro */
     }
   </style>
 </head>
