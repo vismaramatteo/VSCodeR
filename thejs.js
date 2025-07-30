@@ -1,44 +1,7 @@
 var noTaskbar = 0;
 var alwaysHideNSFW = true;
-var randomNames = [
-  'Rick Deckard',
-  'James Bond',
-  'Korben Dallas',
-  'Danny Ocean',
-  'Cha Tae-sik',
-  'Homer Hickam',
-  'Ben Wade',
-  'Jon Osterman',
-  'Vincent Freeman',
-  'Llewelyn Moss',
-  'Richard Winters',
-  'Lewis Nixon',
-  'George Luz',
-  'Lynn Compton',
-  'Ronald Speirs',
-  'Anton Chigurh',
-  'Irene Cassini',
-  'Sam Bell',
-  'Gerty',
-  'Edward Blake',
-  'Dan Evans',
-  'Charlie Prince',
-  'Quentin',
-  'Jeong So-mi',
-  'Bryan Mills',
-  'Rusty Ryan',
-  'Linus Caldwell',
-  'Jean-Baptiste Emanuel Zorg',
-  'Father Vito Cornelius',
-  'Ruby Rhod',
-  'Chief John Anderton'
-];
 var idList = [];
 var globalStoryDict = {};
-
-function getRandomName() {
-  return randomNames[Number(Math.floor(Math.random() * randomNames.length))];
-}
 
 function myFolder() {
   this.after = '';
@@ -212,7 +175,6 @@ function myStory(parentJson, folder, addToDom) {
   this.rootJson = rootJson;
   this.folder = folder;
   var previewHTML = '<div id="%id" class="anemail emailunread"><span class="subreddit"><b>JS</b></span><span class="emailpreview">%title</span></div>';
-  var name = getRandomName();
   var author = rootJson.author;
   this.id = rootJson.name;
   var num_comments = rootJson.num_comments;
@@ -225,7 +187,6 @@ function myStory(parentJson, folder, addToDom) {
     }
   }
   previewHTML = previewHTML.replace('%author', author);
-  previewHTML = previewHTML.replace('%randomname', name);
   previewHTML = previewHTML.replace('%score', score);
   previewHTML = previewHTML.replace('%title', this.title);
   previewHTML = previewHTML.replace('%subreddit', rootJson.subreddit[0].toString().toUpperCase());
