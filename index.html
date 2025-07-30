@@ -202,7 +202,7 @@
     }
     .anemail {
       cursor:pointer;
-      min-height:40px;
+      min-height:28px;
       max-height:200px;
       padding-bottom:1px;
       display: flex;
@@ -221,6 +221,9 @@
     }
     .emailpreview {
       flex: 1;           /* prende tutto lo spazio restante */
+      white-space: nowrap;   /* non andare mai a capo */
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .emailname {
       font-family: "Segoe UI","Helvetica Neu",Times,serif;
