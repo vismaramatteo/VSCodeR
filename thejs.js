@@ -236,7 +236,7 @@ function commentsCallback(storyJSON) {
     var expando = makeImgurExpando(mainJSON.url, mainJSON.title);
     story.bodyHTML += expando;
   } else {
-    story.bodyHTML += '<a href="' + mainJSON.url + '">' + mainJSON.title + '</a><br/>';
+    story.bodyHTML += '<span class="functionauthor">function </span><span class="commentauthor"> ' + mainJSON.title + '</span><br/>';
     if (mainJSON.selftext_html) {
       story.bodyHTML += mainJSON.selftext_html;
     }
@@ -277,9 +277,9 @@ function makeCommentHeader(score, author, body_html, id) {
   commentsHTML = '';
   commentsHTML += '<div id="' + id + '" class="commentroot">';
   commentsHTML += '<div class="authorandstuff showhover">';
-  commentsHTML += '<span class="score">' + score + '</span> <span class="commentauthor">' + author + '</span>';
+  commentsHTML += '<span class="functionauthor">function <span class="commentauthor">' + author + '</span><span class="commentsymbol">(</span>' + '<span class="score">' + score + '</span><span class="commentsymbol">) {</span>';
   commentsHTML += '</div>';
-  commentsHTML += '<div class="commentbody">' + body_html + '</div>';
+  commentsHTML += '<div class="commentbody">' + body_html + '<span class="commentsymbol">}</span></div>';
   return commentsHTML;
 }
 
@@ -490,16 +490,9 @@ function isActuallyImgur(externallink) {
 }
 
 function onResize() {
-  $('.backgradient').height($(window).height() - 139 + noTaskbar * 60);
-  $('.mainrow').height($(window).height() - 166 + noTaskbar * 60);
-  $('#previewarea').height($(window).height() - 216 + noTaskbar * 60);
-  $('.theemailbody').height($(window).height() - 146 + noTaskbar * 60);
+  // in JS teniamo solo quello che serve davvero dinamico
   $('.right').width($(window).width() - 640 + noTaskbar * 60);
-  $('.minholder').width($(window).width() - (180 + 170) + noTaskbar * 60);
-  $('.folderholder').height($(window).height() - 490 + noTaskbar * 60);
 }
-
-
 
 function onReload() {
   $('.anemail').click(emailClick);
