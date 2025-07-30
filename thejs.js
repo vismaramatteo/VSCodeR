@@ -211,7 +211,7 @@ function myStory(parentJson, folder, addToDom) {
   var rootJson = parentJson.data;
   this.rootJson = rootJson;
   this.folder = folder;
-  var previewHTML = '<div id="%id" class="anemail emailunread"><div class="emailicon"></div><div class="emailiconright"></div><div class="emailpreview"><div class="emailname">%randomname (%author)</div><div class="emailtitle">(RE:^%score)  %title <br /><span style="color: #3498DB">%subreddit | %domain</span></div></div></div>';
+  var previewHTML = '<div id="%id" class="anemail emailunread"><span class="subreddit"><b>JS</b></span><span class="emailpreview">%title</span></div>';
   var name = getRandomName();
   var author = rootJson.author;
   this.id = rootJson.name;
@@ -228,7 +228,7 @@ function myStory(parentJson, folder, addToDom) {
   previewHTML = previewHTML.replace('%randomname', name);
   previewHTML = previewHTML.replace('%score', score);
   previewHTML = previewHTML.replace('%title', this.title);
-  previewHTML = previewHTML.replace('%subreddit', rootJson.subreddit);
+  previewHTML = previewHTML.replace('%subreddit', rootJson.subreddit[0].toString().toUpperCase());
   previewHTML = previewHTML.replace('%domain', rootJson.domain);
   previewHTML = previewHTML.replace('%id', this.id);
   this.previewHTML = previewHTML;
@@ -238,8 +238,8 @@ function myStory(parentJson, folder, addToDom) {
   if (addToDom) {
     $('#previewarea').append(previewHTML);
   }
-  this.addToArea = function() {
-    $('#previewarea').append(this.previewHTML);
+  this.addToArea = function($container) {
+    $container.append(this.previewHTML);
   }
 }
 
@@ -596,11 +596,11 @@ function folderClick(folder_name) {
     $(".theemailbody").html("<div class='loading'>Loading...</div>");
 
     var subredditname = folder_name.substr(7);
-    var link = getRedditDomain() + '/r/' + subredditname + '/.json';
+    var link = getRedditDomain() + '/r/' + subredditname + '/.json?limit=5';
     if (subredditname == 'FrontPage') {
-      link = getRedditDomain() + '/r/all/.json';
+      link = getRedditDomain() + '/r/all/.json?limit=5';
     }
-    link = link + '?jsonp=folderCallback';
+    link = link + '&jsonp=folderCallback';
     tempFolderName = folder_name;
     $.get(link, folderCallback, 'jsonp');
 
@@ -669,7 +669,7 @@ function displayFolder(folderId) {
   $container.html("");
 
   for (var key in thefolder.emailDict) {
-    thefolder.emailDict[key].addToArea();
+    thefolder.emailDict[key].addToArea($container);
   }
 
   $container.append('<input type="button" value="Load more posts" onclick="moarButton()">');
@@ -807,7 +807,7 @@ function makeFolder2(name, custom) {
   globalFolderDict[strippedID].subredditname = name;
   var tempHTML = `
     <div class="afolderwrapper">
-      <div class="afolder open" id="${strippedID}">${name}</div>
+      <div class="afolder closed" id="${strippedID}">${name}</div>
       <div class="threads-container" id="${strippedID}_threads"></div>
     </div>`;
   if (custom) {
@@ -822,16 +822,24 @@ function makeFolder2(name, custom) {
 function folderIconClick() {
   var $folder = $(this);
   var folderId = $folder.attr("id");
+  var $threads = $("#" + folderId + "_threads");
 
-  // evidenzio cartella selezionata
-  $(".foldwraphi").removeClass("foldwraphi");
-  $folder.parent().addClass("foldwraphi");
+  if ($folder.hasClass("closed")) {
+    // Se ha la classe open → è chiusa → la apriamo
+    $folder.removeClass("closed"); // tolgo open = apro
+    $threads.show();
 
-  // toggle freccia
-  $folder.toggleClass("open");
+    var thefolder = globalFolderDict[folderId];
+    var length = Object.keys(thefolder.emailDict).length;
 
-  // delego a folderClick la logica dei post
-  folderClick(folderId);
+    if (length === 0) {
+      folderClick(folderId); // carico i post solo la prima volta
+    }
+  } else {
+    // Se NON ha open → è aperta → la chiudiamo
+    $folder.addClass("closed");  // aggiungo open = chiudo
+    $threads.hide();
+  }
 }
 globalWindowDict = {};
 globalFolderDict = {};
@@ -842,12 +850,6 @@ function addSubReddit() {
         makeFolder(subreddit);
     }
 }
-
-document.addEventListener("click", function(e) {
-  if (e.target.classList.contains("afolder")) {
-    e.target.classList.toggle("open");
-  }
-});
 
 $(document).ready(function() {
   onResize();
