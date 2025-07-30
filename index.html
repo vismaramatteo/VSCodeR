@@ -27,7 +27,6 @@
       margin-left:5px;
       font-size:small;
       padding:2px;
-      border-bottom:1px solid #DDD;
     }
 
     td.right:hover * .authorandstuff {
@@ -36,7 +35,6 @@
     .afolder {
       padding-top: 3px;
       padding-bottom: 5px;
-      margin-left:10px;
       padding-left:20px;
       cursor:pointer;
       font-family: Segoe UI;
@@ -50,13 +48,14 @@
       transform: rotate(0deg);
       margin-right: 10px;
     }
-    .afolder.open::before {
+    .afolder.closed::before {
       transform: rotate(-90deg); /* freccina che ruota */
     }
     .threads-container {
-      margin-left: 20px;
-      font-size: 0.9em;
+      margin-left: 15px;
+      font-size: 12pt;
       color: #ccc;
+      font-family: Segoe UI;
     }
     .thread {
       padding: 2px 0;
@@ -199,9 +198,46 @@
       opacity: 0.1;
     }
     .foldwraphi {
-      background: rgb(42,45,46);
+      background-color: #181818;
     }
-    
+    .anemail {
+      cursor:pointer;
+      min-height:40px;
+      max-height:200px;
+      padding-bottom:1px;
+      display: flex;
+      align-items: center;
+    }
+    .anemail:hover {
+      background-color: rgba(42,45,46,1);
+    }
+    .subreddit {
+      font-family: 'Segoe UI';
+      color: #c6cb41;
+      font-size: 9pt;
+      width: 20px;      /* larghezza fissa colonna subreddit */
+      flex-shrink: 0;    /* non si restringe */
+      text-align: right;
+    }
+    .emailpreview {
+      flex: 1;           /* prende tutto lo spazio restante */
+    }
+    .emailname {
+      font-family: "Segoe UI","Helvetica Neu",Times,serif;
+      padding-top:2px;
+      font-size:8pt;
+    }
+    .emailtitle {
+      font-family: "Segoe UI","Helvetica Neu",Times,serif;
+      color:#888;
+      font-size:8pt;
+    }
+    .emailpreview {
+      padding-left: 10px;
+      width:290px;
+      position:relative;
+      overflow:hidden;
+    }
   </style>
 </head>
 <body>
