@@ -285,7 +285,7 @@ function makeCommentHeader(score, author, body_html, id, isChild) {
     const templates = [
       `<span class="ifauthor">if</span><span class="commentsymbol">(</span>${author}<span style="color:white"> == </span>${score}<span class="commentsymbol">) {</span>`,
       `<span class="ifauthor">while</span><span class="commentsymbol">(</span>${author}<span style="color:white"> &lt; </span><span class="score">${score}</span><span class="commentsymbol">) {</span>`,
-      `<span class="ifauthor">for</span><span class="commentsymbol">(</span><span class="var">let</span> i<span class="symbol">=</span><span class="score">0</span>;i&lt;<span class="score">${score}</span>;i<span class="symbol">++</span><span class="commentsymbol">) {</span>`,
+      `<span class="ifauthor">for</span><span class="commentsymbol">(</span><span class="var">let</span> ${author}<span class="symbol">=</span><span class="score">0</span><span class="symbol">;</span>i<span class="symbol">&lt;</span><span class="score">${score}</span><span class="symbol">;</span>i<span class="symbol">++</span><span class="commentsymbol">) {</span>`,
     ];
 
     // Scelgo un template casuale
@@ -325,7 +325,7 @@ function getChildComments(jsonroot, level) {
       tempHTML += getChildComments(commentjson.replies.data.children, level + 1);
     } catch (err) {}
     tempHTML += '</div></div>';
-    tempHTML += '<div class="closeauthorandstuff"><span class="commentsymbol"">}</span></div><br/>';
+    tempHTML += '<div class="closeauthorandstuff"><span class="commentsymbol"">}</span></div>';
   }
 
   return tempHTML;
