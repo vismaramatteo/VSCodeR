@@ -238,7 +238,7 @@ function commentsCallback(storyJSON) {
     var expando = makeImgurExpando(mainJSON.url, mainJSON.title);
     story.bodyHTML += expando;
   } else {
-    story.bodyHTML += '<span class="functionauthor">function </span><span class="commentauthor"> ' + mainJSON.title + '</span><span class="commentsymbol">(</span><a href="${url}" target="_blank">' + mainJSON.subreddit + '</a><span class="commentsymbol">) {</span><br/>';
+    story.bodyHTML += '<span class="functionauthor">function </span><span class="commentauthor"> ' + mainJSON.title + '</span><span class="commentsymbol">(</span><a href="https://www.reddit.com' + mainJSON.permalink + '" target="_blank">' + mainJSON.subreddit + '</a><span class="commentsymbol">) {</span><br/>';
     if (mainJSON.selftext_html) {
       story.bodyHTML += mainJSON.selftext_html;
     }
@@ -278,7 +278,7 @@ function makeCommentHeader(score, author, body_html, id, isChild) {
     commentsHTML += '</div>';
     commentsHTML += '<div class="commentbody">' +
                     body_html.replaceAll('<p>', '<p style="margin-bottom: 0px;">')
-                    .replaceAll('</p><br/>','</p>')
+                    .replaceAll('</p><br>','</p>')
                     .replaceAll('<br/>','') +
                     '</div>';
   } else {
@@ -296,7 +296,7 @@ function makeCommentHeader(score, author, body_html, id, isChild) {
     commentsHTML += '<div class="authorandstuff">' + codeLine + '</div>';
     commentsHTML += '<div class="commentbody">' +
                     body_html.replaceAll('<p>', '<p style="margin-bottom: 0px;">')
-                    .replaceAll('</p><br/>','</p>')
+                    .replaceAll('</p><br>','</p>')
                     .replaceAll('<br/>','') +
                     '</div>';
   }
@@ -633,7 +633,7 @@ function displayFolder(folderId) {
     thefolder.emailDict[key].addToArea($container);
   }
 
-  $container.append('<input type="button" value="Load more posts" onclick="moarButton()">');
+  $container.append('<button id="moarButton" onclick="moarButton()">+ Add More</button>');
   onReload();
 }
 
