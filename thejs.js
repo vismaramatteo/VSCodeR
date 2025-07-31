@@ -305,7 +305,7 @@ function makeCommentHeader(score, author, body_html, id, isChild) {
 }
 
 function replaceEmojis(text) {
-  return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '[emoji]');
+  return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '<span class="commentsymbol>[</span>emoji<span class="commentsymbol>]</span>');
 }
 function stripGifImages(html) {
   let temp = document.createElement("div");
@@ -453,7 +453,6 @@ function expandoClick() {
   });
   resizeFunc();
 }
-
 function makeImgurExpando(externallink, title) {
   if (externallink.indexOf('i.imgur.com') == -1 && externallink.indexOf('imgur.com') != -1) {
     externallink.replace('imgur.com', 'i.imgur.com');
