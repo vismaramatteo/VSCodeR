@@ -149,15 +149,6 @@
       border-radius: 4px;
       white-space: pre-wrap;
     }
-    .status-bar {
-      height: 24px;
-      background-color: #007acc;
-      color: white;
-      display: flex;
-      align-items: center;
-      padding-left: 10px;
-      font-size: 12px;
-    }
     .topbar {
       background-image:url('topbar.png');
       position:fixed;
@@ -276,7 +267,7 @@
       position:relative;
     }
     .backgradient {
-      height: calc(100vh - 139px); /* prima era in JS */
+      height: calc(100vh - 139px);
     }
 
     .mainrow {
@@ -299,29 +290,29 @@
       margin-right:15px;
     }
     .folderholder {
-      overflow-y: auto;             /* scroll se serve */
+      overflow-y: auto;
     }
     td.right:hover * .commentroothi {
       background:#CAE6E6;
       border:solid 1px blue;
     }
     * {
-      scrollbar-color: #5a5a5a #1e1e1e;    /* thumb + track */
+      scrollbar-color: #5a5a5a #1e1e1e;
     }
     .childrencomments {
       position: relative;
-      margin-left: 20px;              /* indentazione */
-      padding-left: 15px;             /* spazio dal bordo */
+      margin-left: 20px;
+      padding-left: 15px;
     }
 
     /* linea verticale continua */
     .childrencomments::before {
       content: "";
       position: absolute;
-      top: 0;                  /* distanza dal bordo sinistro */
+      top: 0;
       bottom: 0;
       width: 1px;
-      background-color: #3c3c3c;      /* colore grigio scuro VS Code */
+      background-color: #3c3c3c;
     }
 
     /* blocchi commento */
@@ -330,7 +321,25 @@
       margin-bottom: 10px;
     }
     .score {
-      color: #b5cea8; /* verde chiaro */
+      color: #b5cea8;
+    }
+    .var {
+      color: #439cd6;
+    }
+    .symbol {
+      color: #d4d4d4;
+    }
+    div.expando {
+      color:#569cd6;
+      display:inline-block;
+      margin:5px;
+      margin-right:8px;
+      text-align:center;
+      cursor:pointer;
+    }
+    a {
+      color: #4FC3F7;
+      text-decoration: none;
     }
   </style>
 </head>
@@ -354,18 +363,10 @@
 
         <div style="padding:30px;">
 
-        Welcome to MSOutlookit 2013! <br /><br />
-        The wonderful @attaxia volunteered to update this UI to the
-        Outlook 2013 version (code <a href="https://github.com/attaxia/MSOutlookit">here</a>).
-
-        This newer version is still a work in progress, but the old version is still available <a href="2004/index.html">here</a>.
-
-  </br></br>
-
-
-
+        Welcome to VSCodeR 2025, a Visual Studio Code skin for Reddit! <br /><br />
+        A huge thank you to pcottle for developing MSOutlookit.</br></br>
         <p>
-          <i> Want to add subreddits? Click the "New Email" button and follow the instructions!</i>
+          <i> Want to add subreddits? Click the "Explorer" button and follow the instructions!</i>
         </p>
 
         </br></br>
