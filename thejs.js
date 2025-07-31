@@ -238,7 +238,7 @@ function commentsCallback(storyJSON) {
     var expando = makeImgurExpando(mainJSON.url, mainJSON.title);
     story.bodyHTML += expando;
   } else {
-    story.bodyHTML += '<span class="functionauthor">function </span><span class="commentauthor"> ' + mainJSON.title + '</span><span class="commentsymbol">(</span>' + mainJSON.subreddit + '<span class="commentsymbol">) {</span><br/>';
+    story.bodyHTML += '<span class="functionauthor">function </span><span class="commentauthor"> ' + mainJSON.title + '</span><span class="commentsymbol">(</span><a href="${url}" target="_blank">' + mainJSON.subreddit + '</a><span class="commentsymbol">) {</span><br/>';
     if (mainJSON.selftext_html) {
       story.bodyHTML += mainJSON.selftext_html;
     }
@@ -265,7 +265,8 @@ function commentsCallback(storyJSON) {
 
 function makeCommentHeader(score, author, body_html, id, isChild) {
   let commentsHTML = '';
-
+  body_html = replaceEmojis(body_html);
+  body_html = stripGifImages(body_html);
   if (!isChild) {
     // Struttura completa per root comment
     commentsHTML += '<div id="' + id + '" class="commentroot">';
@@ -283,8 +284,8 @@ function makeCommentHeader(score, author, body_html, id, isChild) {
   } else {
     // Struttura ridotta per risposte annidate → random "code-like" template
     const templates = [
-      `<span class="ifauthor">if</span><span class="commentsymbol">(</span>${author}<span style="color:white"> == </span>${score}<span class="commentsymbol">) {</span>`,
-      `<span class="ifauthor">while</span><span class="commentsymbol">(</span>${author}<span style="color:white"> &lt; </span><span class="score">${score}</span><span class="commentsymbol">) {</span>`,
+      `<span class="ifauthor">if</span><span class="commentsymbol">(</span>${author}<span class="symbol"> == </span>${score}<span class="commentsymbol">) {</span>`,
+      `<span class="ifauthor">while</span><span class="commentsymbol">(</span>${author}<span class="symbol"> &lt; </span><span class="score">${score}</span><span class="commentsymbol">) {</span>`,
       `<span class="ifauthor">for</span><span class="commentsymbol">(</span><span class="var">let</span> ${author}<span class="symbol">=</span><span class="score">0</span><span class="symbol">;</span>i<span class="symbol">&lt;</span><span class="score">${score}</span><span class="symbol">;</span>i<span class="symbol">++</span><span class="commentsymbol">) {</span>`,
     ];
 
@@ -301,6 +302,27 @@ function makeCommentHeader(score, author, body_html, id, isChild) {
   }
 
   return commentsHTML;
+}
+
+function replaceEmojis(text) {
+  return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '[emoji]');
+}
+function stripGifImages(html) {
+  let temp = document.createElement("div");
+  temp.innerHTML = html;
+
+  // trova tutte le img
+  temp.querySelectorAll("img").forEach(img => {
+    if (img.src && img.src.toLowerCase().includes(".gif")) {
+      let link = document.createElement("a");
+      link.href = img.src;
+      link.target = "_blank";
+      link.textContent = "[GIF]";
+      img.replaceWith(link);
+    }
+  });
+
+  return temp.innerHTML;
 }
 
 function getChildComments(jsonroot, level) {
@@ -408,6 +430,15 @@ function expandoClick() {
   var tempid = $(this).attr('id');
   var finder = '#img' + tempid;
   $(finder).toggle();
+  $(finder).children('img.normal')
+  .css({
+    width: "400px",
+    height: "auto"
+  })
+  .resizable({
+    aspectRatio: true,
+    resize: resizeFunc
+  });
   var resizeFunc = function() {
     var idFinder = finder;
     var height = $(idFinder).children('.ui-wrapper').height();
@@ -499,7 +530,6 @@ function isActuallyImgur(externallink) {
 }
 
 function onResize() {
-  // in JS teniamo solo quello che serve davvero dinamico
   $('.right').width($(window).width() - 640 + noTaskbar * 60);
 }
 
@@ -561,8 +591,6 @@ globalScrollDict = {};
 
 function moarButton() {
   $('.afolder').unbind('click');
-  console.log(current_folder);
-
   let baseUrl;
   if (current_folder.subredditname == 'Front Page') {
     baseUrl = getRedditDomain() + '/.json';
