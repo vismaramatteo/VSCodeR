@@ -219,7 +219,7 @@ function populateStory(id) {
   if (story.bodyHTML.length > 1) {
     return 0;
   }
-  $('div.theemailbody').html('<img src="loading.gif">');
+  $('div.theemailbody').html('')//('<img src="loading.gif">');
   var storyName = id.substr(3);
   var link = getRedditDomain() + '/comments/' + storyName + '.json';
   link = link + '?jsonp=commentsCallback';
@@ -230,6 +230,7 @@ currentStory = null;
 
 function commentsCallback(storyJSON) {
   mainJSON = storyJSON[0].data.children[0].data;
+  console.log(mainJSON)
   var theStoryID = mainJSON.name;
   var story = globalStoryDict[theStoryID];
 
@@ -237,7 +238,7 @@ function commentsCallback(storyJSON) {
     var expando = makeImgurExpando(mainJSON.url, mainJSON.title);
     story.bodyHTML += expando;
   } else {
-    story.bodyHTML += '<span class="functionauthor">function </span><span class="commentauthor"> ' + mainJSON.title + '</span><br/>';
+    story.bodyHTML += '<span class="functionauthor">function </span><span class="commentauthor"> ' + mainJSON.title + '</span><span class="commentsymbol">(</span>' + mainJSON.subreddit + '<span class="commentsymbol">) {</span><br/>';
     if (mainJSON.selftext_html) {
       story.bodyHTML += mainJSON.selftext_html;
     }
@@ -275,20 +276,30 @@ function makeCommentHeader(score, author, body_html, id, isChild) {
                     '<span class="commentsymbol">) {</span>';
     commentsHTML += '</div>';
     commentsHTML += '<div class="commentbody">' +
-                    body_html.replaceAll('<p>', '<p style="margin-bottom: 0px;">').replaceAll('</p><br/>','</p>').replaceAll('<br/>','') +
+                    body_html.replaceAll('<p>', '<p style="margin-bottom: 0px;">')
+                    .replaceAll('</p><br/>','</p>')
+                    .replaceAll('<br/>','') +
                     '</div>';
   } else {
-    // Struttura ridotta per risposte annidate
+    // Struttura ridotta per risposte annidate → random "code-like" template
+    const templates = [
+      `<span class="ifauthor">if</span><span class="commentsymbol">(</span>${author}<span style="color:white"> == </span>${score}<span class="commentsymbol">) {</span>`,
+      `<span class="ifauthor">while</span><span class="commentsymbol">(</span>${author}<span style="color:white"> &lt; </span><span class="score">${score}</span><span class="commentsymbol">) {</span>`,
+      `<span class="ifauthor">for</span><span class="commentsymbol">(</span><span class="var">let</span> i<span class="symbol">=</span><span class="score">0</span>;i&lt;<span class="score">${score}</span>;i<span class="symbol">++</span><span class="commentsymbol">) {</span>`,
+    ];
+
+    // Scelgo un template casuale
+    const codeLine = templates[Math.floor(Math.random() * templates.length)];
+
     commentsHTML += '<div id="' + id + '" class="commentchild">';
-    commentsHTML += '<div class="authorandstuff">';
-    commentsHTML += '<span class="ifauthor">if</span><span class="commentsymbol">(</span>' + author +
-                    '<span style="color: white"> == </span> ' + score +
-                    '<span class="commentsymbol">)</span>';
-    commentsHTML += '</div>';
+    commentsHTML += '<div class="authorandstuff">' + codeLine + '</div>';
     commentsHTML += '<div class="commentbody">' +
-                    body_html.replaceAll('<p>', '<p style="margin-bottom: 0px;">').replaceAll('</p><br/>','</p>').replaceAll('<br/>','') +
+                    body_html.replaceAll('<p>', '<p style="margin-bottom: 0px;">')
+                    .replaceAll('</p><br/>','</p>')
+                    .replaceAll('<br/>','') +
                     '</div>';
   }
+
   return commentsHTML;
 }
 
@@ -314,11 +325,7 @@ function getChildComments(jsonroot, level) {
       tempHTML += getChildComments(commentjson.replies.data.children, level + 1);
     } catch (err) {}
     tempHTML += '</div></div>';
-
-    // 🔑 chiusura solo per i root
-    if (level == 0) {
-      tempHTML += '<div class="closeauthorandstuff"><span class="commentsymbol"">}</span></div><br/>';
-    }
+    tempHTML += '<div class="closeauthorandstuff"><span class="commentsymbol"">}</span></div><br/>';
   }
 
   return tempHTML;
@@ -391,21 +398,6 @@ function unEncode(text) {
   return text;
 }
 
-function lynxexpandoClick() {
-  var tempid = $(this).attr('id');
-  var finder = '#lynxexpando' + tempid;
-  $(finder).toggle();
-  if ($(finder).text() == null || $(finder).text().length < 1) {
-    tempLynxAjaxID = finder;
-    var finder2 = '#lynxlink' + tempid;
-    var thelink = $(finder2).attr('href');
-    $(finder).text('Loading... please wait :D this crap takes a while because its my server and not yahoo');
-    makePopup('whoops! Sorry I had to take down my own server, I dont support this functionality anymore, but you can go ' +
-      ' to the link here: \n ' + thelink);
-    return;
-  }
-}
-
 function textdumpBack(data) {
   textdump = data.textdump;
   textdump = textdump.replace(/\n/g, '</br>');
@@ -440,7 +432,7 @@ function makeImgurExpando(externallink, title) {
     externallink = externallink.replace('?full', '');
   }
   var randId = String(Math.floor(Math.random() * 10000));
-  var expando = '<div class="showhover expando" id="' + randId + '" >+</div>';
+  var expando = '<div class="showhover expando" id="' + randId + '" >const</div>';
   if (externallink.indexOf('.gifv') >= 0) {
     externallink = externallink.replace(".gifv", ".mp4");
     expando += '<a href="javascript:void(0)" class="expando" id="' + randId + '">' + title + '</a>';
@@ -517,19 +509,6 @@ function onReload() {
 
 function onStoryLoad() {
   $('.expando').click(expandoClick);
-  $('.lynxexpando').click(lynxexpandoClick);
-  $('.textreplybutton').click(function() {
-    var id = $(this).attr('id').substr(1);
-    spawnReplyWindow(id);
-  });
-  $('.uparrow').click(function() {
-    makePopup('Sorry, I dont support upvoting anymore because I had to take down my server');
-    return 0;
-  });
-  $('.downarrow').click(function() {
-    makePopup('Sorry, I dont support downvoting anymore because I had to take down my server');
-    return 0;
-  });
 }
 
 function votingCallback(data) {
@@ -564,7 +543,7 @@ function folderClick(folder_name) {
     displayFolder(folder_name);
   } else {
     // loading + chiamata AJAX
-    $(".theemailbody").html("<div class='loading'>Loading...</div>");
+    $(".theemailbody").html('')//('<img src="loading.gif">');
 
     var subredditname = folder_name.substr(7);
     var link = getRedditDomain() + '/r/' + subredditname + '/.json?limit=5';
@@ -578,45 +557,28 @@ function folderClick(folder_name) {
   }
 }
 
-var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-function updateClock() {
-  var d = new Date();
-  var dayOfNumeric = d.getDay();
-  var dayOfWeekString = days[dayOfNumeric];
-  var dayOfMonth = d.getDate();
-  var month = d.getMonth() + 1;
-  var year = d.getFullYear();
-  var hour = d.getHours();
-  var minutes = d.getMinutes();
-  if (hour > 12) {
-    var amppm = 'PM';
-    hour -= 12;
-  } else {
-    var amppm = 'AM';
-  }
-  var minuteString = String(minutes);
-  if (minutes < 10) {
-    minuteString = '0' + minuteString;
-  }
-  var dateString = String(month) + '/' + String(dayOfMonth) + '/' + String(year);
-  var timeString = String(hour) + ':' + minuteString + ' ' + amppm;
-  $('.clockholder').html(timeString + '<br/>' + dayOfWeekString + '<br/>' + dateString);
-  var secondsToWait = 60 - d.getSeconds();
-  setTimeout('updateClock()', 1000 * secondsToWait);
-}
 globalScrollDict = {};
 
 function moarButton() {
   $('.afolder').unbind('click');
+  console.log(current_folder);
+
+  let baseUrl;
   if (current_folder.subredditname == 'Front Page') {
-    var link = getRedditDomain() + '/.json?count=' + current_folder.count + '&after=' + current_folder.after;
+    baseUrl = getRedditDomain() + '/.json';
   } else {
-    var link = getRedditDomain() + '/r/' + current_folder.subredditname + "/.json?count=" + current_folder.count + '&after=' + current_folder.after;
+    baseUrl = getRedditDomain() + '/r/' + current_folder.subredditname + '/.json';
   }
-  link += '&jsonp=folderCallback';
+
+  const link = baseUrl +
+    '?limit=5' +
+    '&count=' + current_folder.count +
+    '&after=' + current_folder.after +
+    '&jsonp=folderCallback';
+
   $.get(link, folderCallback, 'jsonp');
 }
+
 tempFolderName = null;
 
 function folderCallback(data) {
@@ -624,7 +586,7 @@ function folderCallback(data) {
 
   var after = data.data.after;
   thefolder.after = after;
-  thefolder.count += 25;
+  thefolder.count += 5;
 
   for (var i = 0; i < data.data.children.length; i++) {
     var story = new myStory(data.data.children[i], thefolder, false);
@@ -672,30 +634,10 @@ function handleEmailSend(id, tofield, ccfield, subjectfield, body) {
     $('.anemailhi').removeClass('anemailhi');
     return 0;
   }
-  if (ccfield.length > 0 && ccfield.indexOf('@') == -1) {
-    makePopup('sorry, dont support logging in anymore :(');
-    $(globalWindowDict[id].idfinder).css('display', 'none');
-    $(globalWindowDict[id].minfinder).css('display', 'none');
-    return 0;
-  }
-  if (tofield.substr(0, 5) == 'reply') {
-    makePopup('sorry, dont support logging in anymore :(');
-    $(globalWindowDict[id].idfinder).css('display', 'none');
-    $(globalWindowDict[id].minfinder).css('display', 'none');
-    return 0;
-  }
   var tempHolder = $(globalWindowDict[id].idfinder).children('.emailcomposewindow').children('.emailcomposebody');
   var tempVal = tempHolder.val();
   tempHolder.val('Error!!! Read below:\n' + tempVal);
 }
-
-function emailCallback(data) {}
-
-function replytoCallback(data) {
-  makeSoftpopup("Comment posted!");
-}
-
-function loginCallback(data) {}
 
 function subredditCallback(data) {
   var subList = data.data.children;
@@ -821,7 +763,7 @@ function addSubReddit() {
         makeFolder(subreddit);
     }
 }
-
+let current_folder = null;
 $(document).ready(function() {
   onResize();
   $(window).resize(onResize);
@@ -835,19 +777,12 @@ $(document).ready(function() {
   makeFolder('iama');
   makeFolder('wtf');
   $('#folder_FrontPage').parent().addClass('foldwraphi');
+  current_folder = globalFolderDict["folder_FrontPage"];
   //folderClick('folder_FrontPage');
   $('.outlookmin').click(function() {
     for (key in globalWindowDict) {
       globalWindowDict[key].minimize();
     }
     $(this).addClass('outlookminhi');
-  });
-  $('.authorandstuff').keyup(function(event) {
-    if (event.keyCode == 82) {
-      var id = $('.commentroothi').parent().attr('id');
-      if (id != null) {
-        spawnReplyWindow(id);
-      }
-    }
   });
 });
