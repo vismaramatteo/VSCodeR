@@ -29,7 +29,6 @@
     }
     .closeauthorandstuff {
       position:relative;
-      top:-15px;
       left:25px;
       margin-left:5px;
       padding:2px;
@@ -308,14 +307,15 @@
     .childrencomments::before {
       content: "";
       position: absolute;
-      top: 0;
-      bottom: 0;
+      top: 1.4em;         /* parte subito sotto l'header con autore/if(...) { */
+      bottom: 1.2em;      /* si ferma prima della chiusura } */
+      left: 8px;          /* posizione interna tra le graffe */
       width: 1px;
       background-color: #3c3c3c;
     }
 
     /* blocchi commento */
-    .commentroot,
+    /*.commentroot,*/
     .commentchild {
       margin-bottom: 10px;
     }
@@ -341,7 +341,7 @@
       text-decoration: none;
     }
     p {
-      
+      margin-bottom: 0px;
     }
     .ui-resizable-se {
       height:20px;
@@ -358,6 +358,30 @@
       bottom:0px;
       left:0px;
       cursor:e-resize;
+    }
+    #moarButton {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 14px;
+      font-family: 'Segoe UI';
+      font-size: 13px;
+      color: #cccccc;
+      background-color: #2d2d2d;
+      border: 1px solid #3c3c3c;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    #moarButton:hover {
+      background-color: #3a3a3a;
+      color: #ffffff;
+    }
+
+    #moarButton:active {
+      background-color: #007acc;  /* blu VSCode */
+      border-color: #007acc;
+      color: white;
     }
   </style>
 </head>
