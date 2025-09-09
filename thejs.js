@@ -120,6 +120,7 @@ function myWindow(type, state, tofield, ccfield, subjectfield, bodyfield, isLogi
     globalWindowDict[$(this).parent().attr('id')].maximize();
   });
   this.bringToFront = function() {
+  debugLog("bringToFront called for window " + this.id);
     $('.outlookminhi').removeClass('outlookminhi');
     $('.emailwindow').css('z-index', 50);
     $(this.idfinder).css('z-index', 51);
@@ -211,24 +212,29 @@ function getRedditDomain() {
 }
 
 function populateStory(id) {
+  debugLog("populateStory called with id: " + id);
   var story = globalStoryDict[id];
   currentStory = id;
   if (story == null) {
+    debugLog("Story not found: " + id);
     return 0;
   }
   if (story.bodyHTML.length > 1) {
+    debugLog("Story already loaded: " + id);
     return 0;
   }
   $('div.theemailbody').html('')//('<img src="loading.gif">');
   var storyName = id.substr(3);
   var link = getRedditDomain() + '/comments/' + storyName + '.json';
   link = link + '?jsonp=commentsCallback';
+  debugLog("Fetching story from link: " + link);
   $.get(link, commentsCallback, 'jsonp');
   return true;
 }
 currentStory = null;
 
 function commentsCallback(storyJSON) {
+  debugLog("commentsCallback called");
   mainJSON = storyJSON[0].data.children[0].data;
   var theStoryID = mainJSON.name;
   var story = globalStoryDict[theStoryID];
@@ -419,12 +425,6 @@ function unEncode(text) {
   return text;
 }
 
-function textdumpBack(data) {
-  textdump = data.textdump;
-  textdump = textdump.replace(/\n/g, '</br>');
-  $(tempLynxAjaxID).html(textdump);
-}
-
 function expandoClick() {
   var tempid = $(this).attr('id');
   var finder = '#img' + tempid;
@@ -561,6 +561,7 @@ function spawnReplyWindow(id) {
 firsttime = true;
 
 function folderClick(folder_name) {
+  debugLog("folderClick called for " + folder_name);
   var thefolder = globalFolderDict[folder_name];
   var subredditname = thefolder.subredditname;
   currentStory = null;
@@ -762,6 +763,7 @@ function makeFolder2(name, custom) {
 function folderIconClick() {
   var $folder = $(this);
   var folderId = $folder.attr("id");
+  debugLog("folderIconClick called for " + folderId);
   var $threads = $("#" + folderId + "_threads");
 
   if ($folder.hasClass("closed")) {
@@ -783,7 +785,22 @@ function folderIconClick() {
 }
 globalWindowDict = {};
 globalFolderDict = {};
-
+function debugLog(msg) {
+  var debugDiv = document.getElementById('debugDiv');
+  if (!debugDiv) {
+    debugDiv = document.createElement('div');
+    debugDiv.id = 'debugDiv';
+    debugDiv.style.position = 'fixed';
+    debugDiv.style.bottom = '0';
+    debugDiv.style.left = '0';
+    debugDiv.style.backgroundColor = 'white';
+    debugDiv.style.zIndex = 9999;
+    debugDiv.style.maxHeight = '200px';
+    debugDiv.style.overflowY = 'auto';
+    document.body.appendChild(debugDiv);
+  }
+  debugDiv.innerHTML += msg + '<br>';
+}
 function addSubReddit() {
     var subreddit = prompt("Please enter a subreddit name");
     if (subreddit != null) {
@@ -792,24 +809,36 @@ function addSubReddit() {
 }
 let current_folder = null;
 $(document).ready(function() {
-  onResize();
-  $(window).resize(onResize);
-  $('.newemailbutton').click(addSubReddit);
-  main_inbox = makeFolder('Front Page');
-  makeFolder('gaming');
-  makeFolder('pics');
-  makeFolder('askreddit');
-  makeFolder('jokes');
-  makeFolder('funny');
-  makeFolder('iama');
-  makeFolder('wtf');
-  $('#folder_FrontPage').parent().addClass('foldwraphi');
-  current_folder = globalFolderDict["folder_FrontPage"];
-  //folderClick('folder_FrontPage');
-  $('.outlookmin').click(function() {
-    for (key in globalWindowDict) {
-      globalWindowDict[key].minimize();
-    }
-    $(this).addClass('outlookminhi');
-  });
+    debugLog("DOM pronto - inizio setup");
+
+    onResize();
+    $(window).resize(onResize);
+    $('.newemailbutton').click(addSubReddit);
+    debugLog("Eventi principali registrati");
+
+    main_inbox = makeFolder('Front Page');
+    debugLog("Cartella 'Front Page' creata");
+
+    makeFolder('gaming');
+    makeFolder('pics');
+    makeFolder('askreddit');
+    makeFolder('jokes');
+    makeFolder('funny');
+    makeFolder('iama');
+    makeFolder('wtf');
+    debugLog("Altre cartelle create");
+
+    $('#folder_FrontPage').parent().addClass('foldwraphi');
+    current_folder = globalFolderDict["folder_FrontPage"];
+    debugLog("Cartella corrente:", current_folder);
+
+    $('.outlookmin').click(function() {
+        debugLog("Minimizza tutto cliccato");
+        for (key in globalWindowDict) {
+            globalWindowDict[key].minimize();
+        }
+        $(this).addClass('outlookminhi');
+    });
+
+    debugLog("Setup completato");
 });
