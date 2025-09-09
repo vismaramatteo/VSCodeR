@@ -230,7 +230,6 @@ currentStory = null;
 
 function commentsCallback(storyJSON) {
   mainJSON = storyJSON[0].data.children[0].data;
-  console.log(mainJSON)
   var theStoryID = mainJSON.name;
   var story = globalStoryDict[theStoryID];
 
