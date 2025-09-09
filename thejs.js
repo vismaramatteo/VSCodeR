@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", () => {
 var noTaskbar = 0;
 var alwaysHideNSFW = true;
 var idList = [];
@@ -813,3 +814,5 @@ $(document).ready(function() {
     $(this).addClass('outlookminhi');
   });
 });
+});
+
