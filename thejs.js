@@ -564,7 +564,8 @@ firsttime = true;
 function folderClick(folder_name) {
   var thefolder = globalFolderDict[folder_name];
   var subredditname = thefolder.subredditname;
-
+  currentStory = null;
+  current_folder = globalFolderDict[folder_name];
   var length = Object.keys(thefolder.emailDict).length;
 
   if (length > 0) {
@@ -813,5 +814,3 @@ $(document).ready(function() {
     $(this).addClass('outlookminhi');
   });
 });
-
-
