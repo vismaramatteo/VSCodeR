@@ -789,17 +789,8 @@ function debugLog(msg) {
   var debugDiv = document.getElementById('debugDiv');
   if (!debugDiv) {
     debugDiv = document.createElement('div');
-    debugDiv.id = 'debugDiv';
-    debugDiv.style.position = 'fixed';
-    debugDiv.style.bottom = '0';
-    debugDiv.style.left = '0';
-    debugDiv.style.backgroundColor = 'white';
-    debugDiv.style.zIndex = 9999;
-    debugDiv.style.maxHeight = '200px';
-    debugDiv.style.overflowY = 'auto';
     document.body.appendChild(debugDiv);
   }
-  debugDiv.innerHTML += msg + '<br>';
 }
 function addSubReddit() {
     var subreddit = prompt("Please enter a subreddit name");
