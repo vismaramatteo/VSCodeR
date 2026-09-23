@@ -206,7 +206,8 @@ function myStory(parentJson, folder, addToDom) {
 }
 
 function getRedditDomain() {
-  return 'https://www.reddit.com';  // Reddit moderno usa solo https
+  // Usa un proxy CORS pubblico
+  return 'https://cors-anywhere.herokuapp.com/https://www.reddit.com';
 }
 
 function populateStory(id) {
