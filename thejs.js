@@ -290,9 +290,7 @@ $container.append(this.previewHTML);
 }
 }
 function getRedditDomain() {
-return (window.location.protocol === 'https:') ?
-'https://pay.reddit.com' :
-'http://www.reddit.com';
+  return 'https://www.reddit.com';
 }
 function populateStory(id) {
 debugLog("populateStory called with id: " + id);
