@@ -206,9 +206,7 @@ function myStory(parentJson, folder, addToDom) {
 }
 
 function getRedditDomain() {
-  return (window.location.protocol === 'https:') ?
-    'https://pay.reddit.com' :
-    'http://www.reddit.com';
+  return 'https://www.reddit.com';  // Reddit moderno usa solo https
 }
 
 function populateStory(id) {
@@ -567,23 +565,32 @@ function folderClick(folder_name) {
   currentStory = null;
   current_folder = globalFolderDict[folder_name];
   var length = Object.keys(thefolder.emailDict).length;
-
+  
   if (length > 0) {
-    // già popolato
     displayFolder(folder_name);
   } else {
-    // loading + chiamata AJAX
-    $(".theemailbody").html('')//('<img src="loading.gif">');
-
+    $(".theemailbody").html('<p>Caricamento...</p>');
     var subredditname = folder_name.substr(7);
-    var link = getRedditDomain() + '/r/' + subredditname + '/.json?limit=5';
+    var link = 'https://www.reddit.com/r/' + subredditname + '/.json?limit=5';
+    
     if (subredditname == 'FrontPage') {
-      link = getRedditDomain() + '/r/all/.json?limit=5';
+      link = 'https://www.reddit.com/.json?limit=5';
     }
-    link = link + '&jsonp=folderCallback';
+    
     tempFolderName = folder_name;
-    $.get(link, folderCallback, 'jsonp');
-
+    
+    $.ajax({
+      url: link,
+      headers: {
+        'User-Agent': 'VSCodeR/1.0'
+      },
+      dataType: 'json',
+      success: folderCallback,
+      error: function(err) {
+        console.error('Errore caricamento:', err);
+        $(".theemailbody").html('<p>Errore nel caricamento dei post</p>');
+      }
+    });
   }
 }
 
