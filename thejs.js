@@ -618,6 +618,7 @@ function moarButton() {
 tempFolderName = null;
 
 function folderCallback(data) {
+  console.log('Dati ricevuti:', data);
   var thefolder = globalFolderDict[tempFolderName];
 
   var after = data.data.after;
