@@ -212,47 +212,24 @@ function getRedditDomain() {
 }
 
 function populateStory(id) {
-    debugLog("populateStory called with id: " + id);
-
-    var story = globalStoryDict[id];
-    currentStory = id;
-
-    if (story == null) {
-        debugLog("Story not found: " + id);
-        return 0;
-    }
-
-    if (story.bodyHTML.length > 1) {
-        debugLog("Story already loaded: " + id);
-        return 0;
-    }
-
-    $('div.theemailbody').html('');
-
-    var storyName = id.substr(3);
-
-    var link = 'https://soci.ly/api/reddit/comments/' +
-        encodeURIComponent(storyName);
-
-    debugLog("Fetching story from link: " + link);
-
-    $.ajax({
-        url: link,
-        type: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            debugLog("Comments received for story: " + storyName);
-            commentsCallback(data);
-        },
-        error: function(xhr, status, error) {
-            debugLog(
-                "Error fetching comments: HTTP " + xhr.status +
-                " | " + status + " | " + error
-            );
-        }
-    });
-
-    return true;
+  debugLog("populateStory called with id: " + id);
+  var story = globalStoryDict[id];
+  currentStory = id;
+  if (story == null) {
+    debugLog("Story not found: " + id);
+    return 0;
+  }
+  if (story.bodyHTML.length > 1) {
+    debugLog("Story already loaded: " + id);
+    return 0;
+  }
+  $('div.theemailbody').html('')//('<img src="loading.gif">');
+  var storyName = id.substr(3);
+  var link = getRedditDomain() + '/comments/' + storyName + '.json';
+  link = link + '?jsonp=commentsCallback';
+  debugLog("Fetching story from link: " + link);
+  $.get(link, commentsCallback, 'jsonp');
+  return true;
 }
 currentStory = null;
 
@@ -597,62 +574,37 @@ function folderClick(folder_name) {
   } else {
     // loading + chiamata AJAX
     $(".theemailbody").html('')//('<img src="loading.gif">');
+
     var subredditname = folder_name.substr(7);
-    
+    var link = getRedditDomain() + '/r/' + subredditname + '/.json?limit=5';
     if (subredditname == 'FrontPage') {
-        subredditname = 'all';
+      link = getRedditDomain() + '/r/all/.json?limit=5';
     }
-    
-    var link = 'https://soci.ly/api/reddit/subreddit/' +
-        encodeURIComponent(subredditname);
-    
+    link = link + '&jsonp=folderCallback';
     tempFolderName = folder_name;
-    
-    $.ajax({
-        url: link,
-        type: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            folderCallback(data);
-        },
-        error: function(xhr, status, error) {
-            debugLog(
-                'Errore soci.ly: HTTP ' + xhr.status +
-                ' | ' + status + ' | ' + error
-            );
-        }
-    });
+    $.get(link, folderCallback, 'jsonp');
+
   }
 }
 
 globalScrollDict = {};
 
 function moarButton() {
-  var subredditname = current_folder.subredditname;
-
-  if (subredditname == 'FrontPage') {
-      subredditname = 'all';
+  $('.afolder').unbind('click');
+  let baseUrl;
+  if (current_folder.subredditname == 'Front Page') {
+    baseUrl = getRedditDomain() + '/.json';
+  } else {
+    baseUrl = getRedditDomain() + '/r/' + current_folder.subredditname + '/.json';
   }
-  
-  var link = 'https://soci.ly/api/reddit/subreddit/' +
-      encodeURIComponent(subredditname) +
-      '?limit=25&after=' +
-      encodeURIComponent(current_folder.after);
-  
-  $.ajax({
-      url: link,
-      type: 'GET',
-      dataType: 'json',
-      success: function(data) {
-          folderCallback(data);
-      },
-      error: function(xhr, status, error) {
-          debugLog(
-              'Errore soci.ly: HTTP ' + xhr.status +
-              ' | ' + status + ' | ' + error
-          );
-      }
-  });
+
+  const link = baseUrl +
+    '?limit=5' +
+    '&count=' + current_folder.count +
+    '&after=' + current_folder.after +
+    '&jsonp=folderCallback';
+
+  $.get(link, folderCallback, 'jsonp');
 }
 
 tempFolderName = null;
