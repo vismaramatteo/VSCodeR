@@ -574,37 +574,62 @@ function folderClick(folder_name) {
   } else {
     // loading + chiamata AJAX
     $(".theemailbody").html('')//('<img src="loading.gif">');
-
     var subredditname = folder_name.substr(7);
-    var link = getRedditDomain() + '/r/' + subredditname + '/.json?limit=5';
+    
     if (subredditname == 'FrontPage') {
-      link = getRedditDomain() + '/r/all/.json?limit=5';
+        subredditname = 'all';
     }
-    link = link + '&jsonp=folderCallback';
+    
+    var link = 'https://soci.ly/api/reddit/subreddit/' +
+        encodeURIComponent(subredditname);
+    
     tempFolderName = folder_name;
-    $.get(link, folderCallback, 'jsonp');
-
+    
+    $.ajax({
+        url: link,
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            folderCallback(data);
+        },
+        error: function(xhr, status, error) {
+            debugLog(
+                'Errore soci.ly: HTTP ' + xhr.status +
+                ' | ' + status + ' | ' + error
+            );
+        }
+    });
   }
 }
 
 globalScrollDict = {};
 
 function moarButton() {
-  $('.afolder').unbind('click');
-  let baseUrl;
-  if (current_folder.subredditname == 'Front Page') {
-    baseUrl = getRedditDomain() + '/.json';
-  } else {
-    baseUrl = getRedditDomain() + '/r/' + current_folder.subredditname + '/.json';
+  var subredditname = current_folder.subredditname;
+
+  if (subredditname == 'FrontPage') {
+      subredditname = 'all';
   }
-
-  const link = baseUrl +
-    '?limit=5' +
-    '&count=' + current_folder.count +
-    '&after=' + current_folder.after +
-    '&jsonp=folderCallback';
-
-  $.get(link, folderCallback, 'jsonp');
+  
+  var link = 'https://soci.ly/api/reddit/subreddit/' +
+      encodeURIComponent(subredditname) +
+      '?limit=25&after=' +
+      encodeURIComponent(current_folder.after);
+  
+  $.ajax({
+      url: link,
+      type: 'GET',
+      dataType: 'json',
+      success: function(data) {
+          folderCallback(data);
+      },
+      error: function(xhr, status, error) {
+          debugLog(
+              'Errore soci.ly: HTTP ' + xhr.status +
+              ' | ' + status + ' | ' + error
+          );
+      }
+  });
 }
 
 tempFolderName = null;
