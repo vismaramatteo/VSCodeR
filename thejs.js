@@ -212,24 +212,47 @@ function getRedditDomain() {
 }
 
 function populateStory(id) {
-  debugLog("populateStory called with id: " + id);
-  var story = globalStoryDict[id];
-  currentStory = id;
-  if (story == null) {
-    debugLog("Story not found: " + id);
-    return 0;
-  }
-  if (story.bodyHTML.length > 1) {
-    debugLog("Story already loaded: " + id);
-    return 0;
-  }
-  $('div.theemailbody').html('')//('<img src="loading.gif">');
-  var storyName = id.substr(3);
-  var link = getRedditDomain() + '/comments/' + storyName + '.json';
-  link = link + '?jsonp=commentsCallback';
-  debugLog("Fetching story from link: " + link);
-  $.get(link, commentsCallback, 'jsonp');
-  return true;
+    debugLog("populateStory called with id: " + id);
+
+    var story = globalStoryDict[id];
+    currentStory = id;
+
+    if (story == null) {
+        debugLog("Story not found: " + id);
+        return 0;
+    }
+
+    if (story.bodyHTML.length > 1) {
+        debugLog("Story already loaded: " + id);
+        return 0;
+    }
+
+    $('div.theemailbody').html('');
+
+    var storyName = id.substr(3);
+
+    var link = 'https://soci.ly/api/reddit/comments/' +
+        encodeURIComponent(storyName);
+
+    debugLog("Fetching story from link: " + link);
+
+    $.ajax({
+        url: link,
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            debugLog("Comments received for story: " + storyName);
+            commentsCallback(data);
+        },
+        error: function(xhr, status, error) {
+            debugLog(
+                "Error fetching comments: HTTP " + xhr.status +
+                " | " + status + " | " + error
+            );
+        }
+    });
+
+    return true;
 }
 currentStory = null;
 
